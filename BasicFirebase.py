@@ -45,6 +45,7 @@ def restart():
 
 def sendPakan():
     setSwitchState("SW0", 0)
+    time.sleep(15)
     setSwitchState("SW1", 0)
     time.sleep(20)
 
