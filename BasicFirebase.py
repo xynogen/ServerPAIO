@@ -12,7 +12,7 @@ app = firebase_admin.initialize_app(cred)
 ref = db.reference("/", app, "https://autofish-d31e9-default-rtdb.asia-southeast1.firebasedatabase.app")
 
 def setSwitchState(SwitchName: str, State: int):
-    listSwitch = ["SW0", "SW1", "SW2"]
+    listSwitch = ["SW0", "SW1", "SW2", "SW3"]
     response = ""
 
     if SwitchName not in listSwitch:
@@ -31,7 +31,7 @@ def setSwitchState(SwitchName: str, State: int):
     return 0
 
 def groundState():
-    switch = {"blower": "0", "pompa": "0"}
+    switch = {"blower": "0", "pompa": "0", "pompa2": "0"}
     ref.child("switch").set(switch)
     ref.child("restart").set("0")
     setSwitchState("SW0", 1)
@@ -44,19 +44,25 @@ def restart():
     groundState()
 
 def sendPakan():
-    setSwitchState("SW0", 0)
-    time.sleep(15)
     setSwitchState("SW1", 0)
-    time.sleep(20)
-
+    time.sleep(1.5)
+    setSwitchState("SW0", 0)
+    time.sleep(0.3)
     setSwitchState("SW0", 1)
-    time.sleep(15)
+    time.sleep(0.5)
     setSwitchState("SW1", 1)
     groundState()
 
 def sendPompa():
+    setSwitchState("SW3", 0)
+    time.sleep(15)
+    setSwitchState("SW3", 1)
+    groundState()
+
+
+def sendPompa2():
     setSwitchState("SW2", 0)
-    time.sleep(20)
+    time.sleep(15)
     setSwitchState("SW2", 1)
     groundState()
 
@@ -79,6 +85,14 @@ def test(Data):
     elif (Data.path == "/switch/pompa"):
         if (Data.data[0] == '1'):
             sendPompa()
+
+    if (Data.path == "/switch"):
+        if (Data.data["pompa2"] == '1'):
+            sendPompa2()
+
+    elif (Data.path == "/switch/pompa2"):
+        if (Data.data[0] == '1'):
+            sendPompa2()
 
     elif (Data.path == "/restart"):
         if (Data.data == "1"):
